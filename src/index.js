@@ -1,5 +1,5 @@
 import express from 'express'
-import { PersonModel } from './models/Person.js'
+import { MovieModel } from './models/Movie.js'
 import { env } from './config/env.js'
 import mongoose from 'mongoose'
 
@@ -14,79 +14,85 @@ app.use(
 
 app.use(express.json())
 
-app.post('/person', async (req, res) => {
-    const { nome, salario, aprovado } = req.body
-    const person = {
-        nome,
-        salario,
-        aprovado
+app.post('/movie', async (req, res) => {
+    const { titulo, sinopse, duracao, dataLancamento, imagem, categorias } = req.body
+    const movie = {
+        titulo,
+        sinopse,
+        duracao,
+        dataLancamento,
+        imagem,
+        categorias,
     }
     try {
         await mongoose.connect(env.mongoCon)
-        const personDb = await PersonModel.create(person)
-        res.json({ message: 'Pessoa inserida no sistema com sucesso!', data: personDb })
+        const movieDb = await MovieModel.create(movie)
+        res.json({ message: 'Filme inserido com sucesso!', data: movieDb })
     } catch (error) {
         res.json({ erro: error })
     }
 })
 
-app.get('/person', async (req, res) => {
+app.get('/movie', async (req, res) => {
     try {
         await mongoose.connect(env.mongoCon)
-        const personDb = await PersonModel.find()
-        res.json({ data: personDb })
+        const movieDb = await MovieModel.find()
+        res.json({ data: movieDb })
     } catch (error) {
         res.json({ erro: error })
     }
 })
 
-app.get('/person/:id', async (req, res) => {
+app.get('/movie/:id', async (req, res) => {
     const id = req.params.id
     try {
         await mongoose.connect(env.mongoCon)
-        const person = await PersonModel.findOne({ _id: id })
-        if (!person) {
-            res.status(422).json({ message: 'Usuário não encontrado!' })
+        const movie = await MovieModel.findOne({ _id: id })
+        if (!movie) {
+            res.status(422).json({ message: 'Filme não encontrado!' })
             return
         }
-        res.json(person)
+        res.json(movie)
     } catch (error) {
         res.status(500).json({ erro: error })
     }
 })
 
-app.patch('/person/:id', async (req, res) => {
+app.patch('/movie/:id', async (req, res) => {
     const id = req.params.id
-    const { nome, salario, aprovado } = req.body
-    const person = {
-        nome,
-        salario,
-        aprovado,
+    const { titulo, sinopse, duracao, dataLancamento, imagem, categorias } = req.body
+    const movie = {
+        titulo,
+        sinopse,
+        duracao,
+        dataLancamento,
+        imagem,
+        categorias
     }
     try {
         await mongoose.connect(env.mongoCon)
-        const updatedPerson = await PersonModel.updateOne({ _id: id }, person)
-        if (updatedPerson.matchedCount === 0) {
-            res.status(422).json({ message: 'Usuário não encontrado!' })
+        const updatedMovie = await MovieModel.updateOne({ _id: id }, movie)
+        if (updatedMovie.matchedCount === 0) {
+            res.status(422).json({ message: 'Filme não encontrado!' })
             return
         }
-        res.status(200).json(person)
+        res.status(200).json(movie)
     } catch (error) {
         res.status(500).json({ erro: error })
     }
 })
 
-app.delete('/person/:id', async (req, res) => {
+app.delete('/movie/:id', async (req, res) => {
     const id = req.params.id
     await mongoose.connect(env.mongoCon)
-    const person = await PersonModel.findOne({ _id: id })
-    if (!person) {
-        res.status(422).json({ message: 'Usuário não encontrado!' })
+    const movie = await MovieModel.findOne({ _id: id })
+    if (!movie) {
+        res.status(422).json({ message: 'Filme não encontrado!' })
         return
     }
     try {
-        await PersonModel.deleteOne({ _id: id })
-        res.status(200).json({ message: 'Usuário removido com sucesso!' })
+        await MovieModel.deleteOne({ _id: id })
+        res.status(200).json({ message: 'Filme removido com sucesso!' })
     } catch (error) {
         res.status(500).json({ erro: error })
     }
